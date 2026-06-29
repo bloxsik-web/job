@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jobs</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: rgb(9, 10, 14);
+            color: #f0f8ff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            width: 40px;
+            display: block;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            opacity: 0.7;
+        }
+
+        .jobs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .job-card {
+            background-color: rgb(22, 26, 37);
+            border-radius: 16px;
+            padding: 24px 24px 28px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.04);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .job-card:hover {
+            border-color: rgba(255,255,255,0.08);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        .job-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 12px;
+        }
+
+        .job-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.04);
+            flex-shrink: 0;
+        }
+
+        .job-icon img {
+            width: 28px;
+            height: 28px;
+            filter: brightness(0) invert(1);
+        }
+
+        .job-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .job-department {
+            font-size: 13px;
+            color: rgba(255,255,255,0.4);
+        }
+
+        .job-description {
+            color: rgba(255,255,255,0.5);
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 8px 0 16px 0;
+            flex: 1;
+        }
+
+        .job-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 18px;
+        }
+
+        .job-tag {
+            background: rgba(255,255,255,0.04);
+            color: rgba(255,255,255,0.4);
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        .job-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .job-location {
+            color: rgba(255,255,255,0.3);
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .job-location img {
+            width: 16px;
+            height: 16px;
+            filter: brightness(0) invert(1);
+            opacity: 0.3;
+        }
+
+        .apply-btn {
+            background: #5865f2;
+            color: #fff;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            letter-spacing: 0.3px;
+        }
+
+        .apply-btn:hover {
+            background: #4752c4;
+            transform: scale(1.02);
+        }
+
+        /* ----- Модальное окно ----- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: rgb(22, 26, 37);
+            border-radius: 20px;
+            max-width: 500px;
+            width: 100%;
+            padding: 28px 30px 32px;
+            border: 1px solid rgba(255,255,255,0.06);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #fff;
+        }
+
+        .modal-sub {
+            color: rgba(255,255,255,0.4);
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .modal label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.6);
+            margin-top: 16px;
+            margin-bottom: 4px;
+        }
+
+        .modal input, .modal textarea, .modal select {
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 12px 14px;
+            color: #f0f8ff;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border 0.2s;
+        }
+
+        .modal input:focus, .modal textarea:focus, .modal select:focus {
+            outline: none;
+            border-color: #5865f2;
+        }
+
+        .modal textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            justify-content: flex-end;
+        }
+
+        .modal-actions button {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-cancel {
+            background: rgba(255,255,255,0.06);
+            color: rgba(255,255,255,0.6);
+        }
+
+        .modal-cancel:hover {
+            background: rgba(255,255,255,0.12);
+        }
+
+        .modal-submit {
+            background: #5865f2;
+            color: #fff;
+        }
+
+        .modal-submit:hover {
+            background: #4752c4;
+        }
+
+        .modal-status {
+            margin-top: 12px;
+            font-size: 14px;
+            color: #8b9cf7;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 16px; }
+            .jobs-grid { grid-template-columns: 1fr; }
+            .job-card { padding: 20px; }
+            .modal { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <img class="logo" src="assets/logo.png" alt="Logo">
+
+    <div class="section-title">Кого мы ищем</div>
+    <div class="jobs-grid">
+
+        <div class="job-card" data-position="moderator">
+            <div class="job-header">
+                <div class="job-icon"><img src="assets/moder.svg" alt="Модератор"></div>
+                <div>
+                    <div class="job-title">Модератор</div>
+                    <div class="job-department">Community</div>
+                </div>
+            </div>
+            <div class="job-description">
+                Проверка контента, работа с жалобами, взаимодействие с сообществом. 
+                Важно внимание к деталям и умение работать в команде.
+            </div>
+            <div class="job-tags">
+                <span class="job-tag">Гибкий график</span>
+                <span class="job-tag">Удалённо</span>
+                <span class="job-tag">Опыт не требуется</span>
+            </div>
+            <div class="job-footer">
+                <span class="job-location"><img src="assets/world.svg" alt="Мир"> Любая страна</span>
+                <button class="apply-btn" data-position="moderator">Подать заявку</button>
+            </div>
+        </div>
+
+        <div class="job-card" data-position="webdev">
+            <div class="job-header">
+                <div class="job-icon"><img src="assets/webdev.svg" alt="Web Developer"></div>
+                <div>
+                    <div class="job-title">Web Developer</div>
+                    <div class="job-department">Engineering</div>
+                </div>
+            </div>
+            <div class="job-description">
+                Разработка и поддержка веб-проектов. React, Node.js, работа с API.
+                Опыт от 1 года приветствуется.
+            </div>
+            <div class="job-tags">
+                <span class="job-tag">Удалённо</span>
+                <span class="job-tag">Полный день</span>
+                <span class="job-tag">Опыт от 1 года</span>
+            </div>
+            <div class="job-footer">
+                <span class="job-location"><img src="assets/world.svg" alt="Мир"> Любая страна</span>
+                <button class="apply-btn" data-position="webdev">Подать заявку</button>
+            </div>
+        </div>
+
+
+        <div class="job-card" data-position="security">
+            <div class="job-header">
+                <div class="job-icon"><img src="assets/security.svg" alt="Безопасность"></div>
+                <div>
+                    <div class="job-title">Отдел безопасности</div>
+                    <div class="job-department">Security</div>
+                </div>
+            </div>
+            <div class="job-description">
+                Защита данных, мониторинг угроз, аудит систем. 
+                Опыт в сфере безопасности от 2 лет.
+            </div>
+            <div class="job-tags">
+                <span class="job-tag">Удалённо</span>
+                <span class="job-tag">Опыт от 2 лет</span>
+                <span class="job-tag">Ответственность</span>
+            </div>
+            <div class="job-footer">
+                <span class="job-location"><img src="assets/world.svg" alt="Мир"> Любая страна</span>
+                <button class="apply-btn" data-position="security">Подать заявку</button>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modalContent">
+            <div class="modal-title" id="modalTitle">Заявка</div>
+            <div class="modal-sub" id="modalSub">Заполните форму</div>
+            <form id="applicationForm">
+                <div id="formFields"></div>
+                <div class="modal-actions">
+                    <button type="button" class="modal-cancel" id="modalCancel">Отмена</button>
+                    <button type="submit" class="modal-submit" id="modalSubmit">Отправить</button>
+                </div>
+                <div id="modalStatus" class="modal-status"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const WEBHOOK_URL = 'https://discord.com/api/webhooks/1520991399485505657/ltQfNq3vW7cZypQ2ZPjhXfrgDG1eVHbLwOA7zNnKeKYOjZwo4Zlzoiye44wACCADMyCu';
+
+            const FIELDS_CONFIG = {
+                moderator: {
+                    title: 'Модератор',
+                    sub: 'Заполните форму для подачи заявки',
+                    fields: [
+                        { id: 'discord', label: 'Ваш никнейм в Discord', placeholder: '3srlz', type: 'text', required: true },
+                        { id: 'roblox', label: 'Ваш ник в Roblox', placeholder: 'aueauepasan03', type: 'text', required: true },
+                        { id: 'age', label: 'Ваш возраст', placeholder: '13', type: 'number', required: true },
+                        { id: 'call', label: 'Готовы ли вы к обзвону?', placeholder: 'Да / Нет', type: 'text', required: true },
+                    ]
+                },
+                webdev: {
+                    title: 'Web Developer',
+                    sub: 'Расскажите о себе',
+                    fields: [
+                        { id: 'discord', label: 'Ваш никнейм в Discord', placeholder: '3srlz', type: 'text', required: true },
+                        { id: 'roblox', label: 'Ваш ник в Roblox', placeholder: 'aueauepasan03', type: 'text', required: true },
+                        { id: 'age', label: 'Ваш возраст', placeholder: '13', type: 'number', required: true },
+                        { id: 'call', label: 'Готовы ли вы к обзвону?', placeholder: 'Да / Нет', type: 'text', required: true },
+                        { id: 'stack', label: 'Стек', placeholder: 'React, Node.js, Docker...', type: 'textarea', required: false },
+                        { id: 'ai_freq', label: 'Как часто используете ИИ в работе?', placeholder: 'Ежедневно / Иногда / Редко', type: 'text', required: false },
+                        { id: 'js_question', label: 'что выведет console.log(typeof null)?', placeholder: 'Ваш ответ', type: 'text', required: true },
+                    ]
+                },
+                security: {
+                    title: 'Отдел безопасности',
+                    sub: 'Заполните форму для подачи заявки',
+                    fields: [
+                        { id: 'discord', label: 'Ваш никнейм в Discord', placeholder: '3srlz', type: 'text', required: true },
+                        { id: 'roblox', label: 'Ваш ник в Roblox', placeholder: 'aueauepasan03', type: 'text', required: true },
+                        { id: 'age', label: 'Ваш возраст', placeholder: '13', type: 'number', required: true },
+                        { id: 'call', label: 'Готовы ли вы к обзвону?', placeholder: 'Да / Нет', type: 'text', required: true },
+                        { id: 'security_plan', label: 'Что вы сделаете для безопасности проекта?', placeholder: 'Ваши идеи...', type: 'textarea', required: true },
+                    ]
+                }
+            };
+
+
+            const overlay = document.getElementById('modalOverlay');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalSub = document.getElementById('modalSub');
+            const formFields = document.getElementById('formFields');
+            const form = document.getElementById('applicationForm');
+            const modalStatus = document.getElementById('modalStatus');
+            const cancelBtn = document.getElementById('modalCancel');
+            const submitBtn = document.getElementById('modalSubmit');
+
+            let currentPosition = null;
+            let cachedIP = null;
+
+            function fetchIP() {
+                if (cachedIP) return Promise.resolve(cachedIP);
+                return fetch('https://api.ipify.org?format=json')
+                    .then(res => res.json())
+                    .then(data => {
+                        cachedIP = data.ip || 'unknown';
+                        return cachedIP;
+                    })
+                    .catch(() => {
+                        cachedIP = 'unknown';
+                        return cachedIP;
+                    });
+            }
+
+            function renderFields(positionKey) {
+                const config = FIELDS_CONFIG[positionKey];
+                if (!config) return;
+
+                modalTitle.textContent = config.title;
+                modalSub.textContent = config.sub;
+
+                let html = '';
+                config.fields.forEach(f => {
+                    const isTextarea = f.type === 'textarea';
+                    const tag = isTextarea ? 'textarea' : 'input';
+                    const attrs = isTextarea ? '' : `type="${f.type}"`;
+                    const requiredAttr = f.required ? 'required' : '';
+                    html += `
+                        <label for="f_${f.id}">${f.label}</label>
+                        <${tag} id="f_${f.id}" name="${f.id}" ${attrs} placeholder="${f.placeholder || ''}" ${requiredAttr}></${tag}>
+                    `;
+                });
+                formFields.innerHTML = html;
+                modalStatus.textContent = '';
+            }
+
+            function openModal(position) {
+                currentPosition = position;
+                renderFields(position);
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                modalStatus.textContent = '';
+                modalStatus.style.color = '#8b9cf7';
+            }
+
+            function closeModal() {
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+                form.reset();
+                modalStatus.textContent = '';
+                currentPosition = null;
+            }
+
+            function sendApplication(formData, position) {
+                const config = FIELDS_CONFIG[position];
+                if (!config) return;
+
+                let fields = [];
+                config.fields.forEach(f => {
+                    const val = formData.get(f.id) || '—';
+                    fields.push({ name: f.label, value: val, inline: false });
+                });
+
+                // парс айпи
+                fetchIP().then(ip => {
+                    fields.push({ name: '🌐 IP адрес отправителя', value: ip, inline: false });
+
+                    const payload = {
+                        embeds: [{
+                            title: `📩 Новая заявка: ${config.title}`,
+                            color: 0x5865f2,
+                            fields: fields,
+                            timestamp: new Date().toISOString(),
+                            footer: { text: 'made with ❤️ by 3srlz' }
+                        }]
+                    };
+
+                    return fetch(WEBHOOK_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                })
+                .then(response => {
+                    if (response.ok) {
+                        modalStatus.textContent = '✅ Заявка успешно отправлена!';
+                        modalStatus.style.color = '#6fcf97';
+                        submitBtn.disabled = true;
+                        setTimeout(() => {
+                            closeModal();
+                            submitBtn.disabled = false;
+                        }, 2000);
+                    } else {
+                        modalStatus.textContent = '❌ Ошибка при отправке. Попробуйте позже.';
+                        modalStatus.style.color = '#f28b82';
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    modalStatus.textContent = '❌ Ошибка сети. Попробуйте позже.';
+                    modalStatus.style.color = '#f28b82';
+                });
+            }
+            document.querySelectorAll('.apply-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const pos = this.getAttribute('data-position') || 
+                                 this.closest('.job-card')?.getAttribute('data-position');
+                    if (pos && FIELDS_CONFIG[pos]) {
+                        openModal(pos);
+                    } else {
+                        alert('Ошибка: вакансия не найдена');
+                    }
+                });
+            });
+
+            cancelBtn.addEventListener('click', closeModal);
+            overlay.addEventListener('click', function(e) {
+                if (e.target === this) closeModal();
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && overlay.classList.contains('active')) closeModal();
+            });
+
+            // саб
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (!currentPosition) return;
+
+                const formData = new FormData(this);
+                const config = FIELDS_CONFIG[currentPosition];
+                let valid = true;
+                config.fields.forEach(f => {
+                    if (f.required) {
+                        const el = document.getElementById(`f_${f.id}`);
+                        if (el && !el.value.trim()) {
+                            valid = false;
+                            el.style.borderColor = '#f28b82';
+                        } else if (el) {
+                            el.style.borderColor = '';
+                        }
+                    }
+                });
+                if (!valid) {
+                    modalStatus.textContent = '⚠️ Заполните все обязательные поля';
+                    modalStatus.style.color = '#f28b82';
+                    return;
+                }
+
+                submitBtn.disabled = true;
+                modalStatus.textContent = '⏳ Отправка...';
+                modalStatus.style.color = '#8b9cf7';
+
+                sendApplication(formData, currentPosition);
+            });
+
+            formFields.addEventListener('input', function(e) {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                    e.target.style.borderColor = '';
+                }
+            });
+
+            fetchIP();
+
+            console.log('Jobs board ready!');
+        })();
+    </script>
+
+</body>
+</html>
